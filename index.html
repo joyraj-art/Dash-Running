@@ -2,22 +2,30 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<title>Dash Runner</title>
+<meta name="viewport"
+content="width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no">
+
+<title>Dash Running</title>
 
 <style>
+
 * {
-    box-sizing: border-box;
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
 }
 
+html,
 body {
+    width: 100%;
+    height: 100%;
     overflow: hidden;
-    background: #111;
+    background: #07101f;
     font-family: Arial, sans-serif;
     touch-action: manipulation;
 }
@@ -27,200 +35,651 @@ body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    background: linear-gradient(#182848, #4b6cb7);
+
+    background:
+    linear-gradient(
+        to bottom,
+        #071226 0%,
+        #142a4d 55%,
+        #294875 100%
+    );
 }
 
 /* Moon */
-.moon {
+
+#moon {
     position: absolute;
-    width: 70px;
-    height: 70px;
-    background: #fff;
-    border-radius: 50%;
+
+    width: 72px;
+    height: 72px;
+
     right: 12%;
     top: 10%;
-    box-shadow: 0 0 30px rgba(255,255,255,.6);
+
+    border-radius: 50%;
+
+    background: #fff4cf;
+
+    box-shadow:
+    0 0 20px rgba(255,244,207,.45),
+    0 0 50px rgba(255,244,207,.18);
 }
 
-/* Background */
+/* Stars */
+
+.star {
+    position: absolute;
+
+    width: 3px;
+    height: 3px;
+
+    border-radius: 50%;
+
+    background: white;
+    opacity: .7;
+}
+
+.s1 { left: 8%; top: 12%; }
+.s2 { left: 25%; top: 8%; }
+.s3 { left: 42%; top: 17%; }
+.s4 { left: 65%; top: 9%; }
+.s5 { left: 82%; top: 23%; }
+.s6 { left: 91%; top: 12%; }
+.s7 { left: 54%; top: 25%; }
+.s8 { left: 17%; top: 28%; }
+
+/* Clouds */
+
 .cloud {
     position: absolute;
+
     width: 120px;
-    height: 35px;
-    background: rgba(255,255,255,.18);
+    height: 30px;
+
     border-radius: 30px;
+
+    background: rgba(255,255,255,.08);
 }
 
 .cloud::before,
 .cloud::after {
     content: "";
+
     position: absolute;
-    background: inherit;
+
     border-radius: 50%;
+
+    background: inherit;
 }
 
 .cloud::before {
     width: 45px;
     height: 45px;
+
     left: 20px;
-    top: -20px;
+    top: -22px;
 }
 
 .cloud::after {
     width: 55px;
     height: 55px;
-    right: 15px;
-    top: -25px;
+
+    right: 12px;
+    top: -28px;
 }
 
 .cloud1 {
-    top: 20%;
-    left: 10%;
+    top: 25%;
+    left: 5%;
 }
 
 .cloud2 {
-    top: 32%;
-    left: 60%;
+    top: 36%;
+    left: 65%;
+
     transform: scale(.7);
 }
 
-/* UI */
-#score {
+/* Score */
+
+#scoreBox {
     position: absolute;
-    top: 20px;
-    left: 20px;
+
+    top: 18px;
+    left: 18px;
+
+    z-index: 50;
+
     color: white;
-    font-size: 22px;
+
+    text-shadow:
+    0 2px 4px rgba(0,0,0,.4);
+}
+
+#score {
+    font-size: 25px;
     font-weight: bold;
-    z-index: 20;
 }
 
 #best {
-    position: absolute;
-    top: 50px;
-    left: 20px;
-    color: rgba(255,255,255,.8);
+    margin-top: 4px;
+
     font-size: 15px;
-    z-index: 20;
+
+    opacity: .8;
 }
 
-/* Player */
+/* Pause */
+
+#pauseButton {
+    position: absolute;
+
+    top: 18px;
+    right: 18px;
+
+    z-index: 60;
+
+    width: 44px;
+    height: 44px;
+
+    border: 0;
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.15);
+
+    color: white;
+
+    font-size: 18px;
+    font-weight: bold;
+}
+
+      </style>
+      /* ==============================
+   PLAYER
+   ============================== */
+
 #player {
     position: absolute;
-    width: 42px;
-    height: 58px;
+
+    width: 44px;
+    height: 68px;
+
     left: 80px;
     bottom: 80px;
-    background: #ffcc33;
-    border-radius: 12px 12px 8px 8px;
-    z-index: 10;
-    box-shadow: 0 5px 10px rgba(0,0,0,.3);
+
+    z-index: 20;
+
+    transform-origin: bottom center;
 }
 
-#player::before {
-    content: "";
+/* Head */
+
+.player-head {
     position: absolute;
+
     width: 30px;
     height: 30px;
-    background: #ffdf66;
+
+    left: 7px;
+    top: 0;
+
     border-radius: 50%;
-    top: -22px;
-    left: 6px;
+
+    background: #ffd66b;
+
+    box-shadow:
+    0 3px 5px rgba(0,0,0,.35);
 }
 
-#player::after {
+/* Hair */
+
+.player-head::before {
     content: "";
+
     position: absolute;
-    width: 6px;
-    height: 6px;
-    background: #111;
-    border-radius: 50%;
-    top: -10px;
-    left: 25px;
+
+    width: 30px;
+    height: 13px;
+
+    top: -1px;
+    left: 0;
+
+    border-radius: 20px 20px 5px 5px;
+
+    background: #24180f;
 }
 
-/* Ground */
+/* Eye */
+
+.player-head::after {
+    content: "";
+
+    position: absolute;
+
+    width: 5px;
+    height: 5px;
+
+    right: 5px;
+    top: 13px;
+
+    border-radius: 50%;
+
+    background: #111;
+}
+
+/* Body */
+
+.player-body {
+    position: absolute;
+
+    width: 29px;
+    height: 34px;
+
+    left: 8px;
+    top: 26px;
+
+    border-radius: 10px 10px 6px 6px;
+
+    background:
+    linear-gradient(
+        to bottom,
+        #ffd21f,
+        #e89d00
+    );
+
+    box-shadow:
+    0 4px 7px rgba(0,0,0,.3);
+}
+
+/* Arms */
+
+.arm {
+    position: absolute;
+
+    width: 9px;
+    height: 27px;
+
+    top: 29px;
+
+    border-radius: 8px;
+
+    background: #ffd66b;
+}
+
+.arm.left {
+    left: 2px;
+
+    transform: rotate(18deg);
+}
+
+.arm.right {
+    right: 1px;
+
+    transform: rotate(-22deg);
+}
+
+/* Legs */
+
+.leg {
+    position: absolute;
+
+    width: 10px;
+    height: 25px;
+
+    top: 55px;
+
+    border-radius: 8px;
+
+    background: #24334f;
+
+    transform-origin: top center;
+}
+
+.leg.left {
+    left: 10px;
+
+    animation:
+    runLeft .18s infinite alternate;
+}
+
+.leg.right {
+    left: 24px;
+
+    animation:
+    runRight .18s infinite alternate;
+}
+
+@keyframes runLeft {
+
+    from {
+        transform: rotate(25deg);
+    }
+
+    to {
+        transform: rotate(-25deg);
+    }
+
+}
+
+@keyframes runRight {
+
+    from {
+        transform: rotate(-25deg);
+    }
+
+    to {
+        transform: rotate(25deg);
+    }
+
+}
+
+
+/* ==============================
+   GROUND
+   ============================== */
+
 #ground {
     position: absolute;
-    bottom: 0;
+
     left: 0;
+    bottom: 0;
+
     width: 100%;
     height: 80px;
-    background: #18220f;
-    border-top: 5px solid #7eb343;
+
+    z-index: 15;
+
+    background:
+    repeating-linear-gradient(
+        90deg,
+        #151c14 0 40px,
+        #1b2517 40px 80px
+    );
+
+    border-top: 6px solid #75a83a;
 }
 
-/* Obstacles */
+#ground::before {
+    content: "";
+
+    position: absolute;
+
+    top: 12px;
+    left: 0;
+
+    width: 100%;
+    height: 3px;
+
+    background: rgba(255,255,255,.06);
+}
+
+
+/* ==============================
+   OBSTACLE
+   ============================== */
+
 .obstacle {
     position: absolute;
-    width: 38px;
-    height: 58px;
+
+    width: 42px;
+    height: 62px;
+
     bottom: 80px;
-    background: #d94b4b;
-    border-radius: 8px 8px 2px 2px;
-    box-shadow: 0 5px 10px rgba(0,0,0,.3);
+
+    z-index: 18;
+
+    border-radius:
+    8px 8px 3px 3px;
+
+    background:
+    linear-gradient(
+        90deg,
+        #7f2028,
+        #d34448,
+        #7f2028
+    );
+
+    border-top:
+    5px solid #ed6a62;
+
+    box-shadow:
+    0 6px 10px rgba(0,0,0,.4);
 }
 
-/* Coins */
+.obstacle::before {
+    content: "";
+
+    position: absolute;
+
+    width: 10px;
+    height: 10px;
+
+    left: 8px;
+    top: 15px;
+
+    border-radius: 50%;
+
+    background: #ffb02e;
+
+    box-shadow:
+    16px 12px 0 #ffb02e,
+    7px 27px 0 #ffb02e;
+}
+
+
+/* ==============================
+   COIN
+   ============================== */
+
 .coin {
     position: absolute;
-    width: 25px;
-    height: 25px;
-    bottom: 170px;
-    background: #ffd700;
+
+    width: 27px;
+    height: 27px;
+
+    bottom: 160px;
+
+    z-index: 19;
+
     border-radius: 50%;
-    border: 3px solid #fff2a6;
-    box-shadow: 0 0 10px rgba(255,215,0,.8);
+
+    background:
+    radial-gradient(
+        circle at 35% 30%,
+        #fff6a0,
+        #ffd21f 45%,
+        #d99a00 100%
+    );
+
+    border:
+    3px solid #fff0a0;
+
+    box-shadow:
+    0 0 12px rgba(255,210,31,.75);
+
+    animation:
+    coinSpin .55s infinite linear;
 }
 
-/* Start screen */
-#startScreen,
-#gameOver {
+@keyframes coinSpin {
+
+    0% {
+        transform: rotateY(0deg);
+    }
+
+    50% {
+        transform: rotateY(90deg);
+    }
+
+    100% {
+        transform: rotateY(180deg);
+    }
+
+}
+
+
+/* ==============================
+   START & GAME OVER SCREENS
+   ============================== */
+
+.overlay {
     position: absolute;
+
     inset: 0;
+
+    z-index: 100;
+
     display: flex;
+
     flex-direction: column;
+
     justify-content: center;
+
     align-items: center;
-    background: rgba(0,0,0,.45);
-    color: white;
-    z-index: 50;
+
     text-align: center;
+
+    color: white;
+
+    background:
+    rgba(4,9,20,.55);
+
+    backdrop-filter: blur(4px);
 }
 
 #gameOver {
     display: none;
 }
 
-h1 {
-    font-size: 42px;
-    margin-bottom: 12px;
+.logo {
+    font-size: 45px;
+
+    font-weight: 900;
+
+    letter-spacing: -2px;
+
+    text-shadow:
+    0 5px 15px rgba(0,0,0,.5);
+
+    margin-bottom: 8px;
 }
 
 .subtitle {
     font-size: 17px;
-    margin-bottom: 25px;
-    opacity: .85;
+
+    opacity: .8;
+
+    margin-bottom: 28px;
 }
 
-button {
-    border: none;
-    background: #ffd21f;
-    color: #111;
-    padding: 14px 32px;
-    border-radius: 30px;
+.bigScore {
+    font-size: 22px;
+
+    margin-bottom: 22px;
+}
+
+
+/* ==============================
+   BUTTON
+   ============================== */
+
+.mainButton {
+    border: 0;
+
+    padding: 15px 36px;
+
+    border-radius: 35px;
+
+    background:
+    linear-gradient(
+        to bottom,
+        #ffe348,
+        #ffbf00
+    );
+
+    color: #171717;
+
     font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
+
+    font-weight: 800;
+
+    box-shadow:
+    0 7px 18px rgba(0,0,0,.3);
 }
 
-button:active {
-    transform: scale(.95);
+.mainButton:active {
+    transform: scale(.94);
 }
 
-#finalScore {
-    margin-bottom: 20px;
+
+/* ==============================
+   PAUSE SCREEN
+   ============================== */
+
+#pauseScreen {
+    display: none;
+}
+
+
+/* ==============================
+   COIN EFFECT
+   ============================== */
+
+.coinFlash {
+    position: absolute;
+
+    pointer-events: none;
+
+    color: #ffe348;
+
     font-size: 20px;
+
+    font-weight: bold;
+
+    z-index: 80;
+
+    animation:
+    coinText .6s forwards;
+}
+
+@keyframes coinText {
+
+    from {
+        opacity: 1;
+
+        transform:
+        translateY(0);
+    }
+
+    to {
+        opacity: 0;
+
+        transform:
+        translateY(-45px);
+    }
+
+}
+
+
+/* ==============================
+   MOBILE
+   ============================== */
+
+@media (max-width: 500px) {
+
+    .logo {
+        font-size: 40px;
+    }
+
+    #player {
+        left: 70px;
+    }
+
+    #moon {
+        width: 62px;
+        height: 62px;
+    }
+
 }
 </style>
 </head>
@@ -229,212 +688,448 @@ button:active {
 
 <div id="game">
 
-    <div class="moon"></div>
+    <!-- Moon -->
+    <div id="moon"></div>
 
+    <!-- Stars -->
+    <div class="star s1"></div>
+    <div class="star s2"></div>
+    <div class="star s3"></div>
+    <div class="star s4"></div>
+    <div class="star s5"></div>
+    <div class="star s6"></div>
+    <div class="star s7"></div>
+    <div class="star s8"></div>
+
+    <!-- Clouds -->
     <div class="cloud cloud1"></div>
     <div class="cloud cloud2"></div>
 
-    <div id="score">Score: 0</div>
-    <div id="best">Best: 0</div>
 
-    <div id="player"></div>
+    <!-- Score -->
+    <div id="scoreBox">
 
+        <div id="score">
+            Score: 0
+        </div>
+
+        <div id="best">
+            Best: 0
+        </div>
+
+    </div>
+
+
+    <!-- Pause Button -->
+    <button id="pauseButton">
+        II
+    </button>
+
+
+    <!-- Player -->
+    <div id="player">
+
+        <div class="player-head"></div>
+
+        <div class="player-body"></div>
+
+        <div class="arm left"></div>
+
+        <div class="arm right"></div>
+
+        <div class="leg left"></div>
+
+        <div class="leg right"></div>
+
+    </div>
+
+
+    <!-- Ground -->
     <div id="ground"></div>
 
-    <div id="startScreen">
-        <h1>Dash Runner</h1>
-        <div class="subtitle">Tap anywhere to jump!</div>
-        <button id="startButton">START GAME</button>
+
+    <!-- Start Screen -->
+
+    <div id="startScreen" class="overlay">
+
+        <div class="logo">
+            DASH RUNNING
+        </div>
+
+        <div class="subtitle">
+            Run • Jump • Collect • Survive
+        </div>
+
+        <button
+            id="startButton"
+            class="mainButton">
+
+            START GAME
+
+        </button>
+
     </div>
 
-    <div id="gameOver">
-        <h1>Game Over</h1>
-        <div id="finalScore">Score: 0</div>
-        <button id="restartButton">PLAY AGAIN</button>
+
+    <!-- Game Over -->
+
+    <div id="gameOver" class="overlay">
+
+        <div class="logo">
+            GAME OVER
+        </div>
+
+        <div
+            id="finalScore"
+            class="bigScore">
+
+            Score: 0
+
+        </div>
+
+        <button
+            id="restartButton"
+            class="mainButton">
+
+            PLAY AGAIN
+
+        </button>
+
     </div>
 
-</div>
 
+    <!-- Pause Screen -->
+
+    <div
+        id="pauseScreen"
+        class="overlay">
+
+        <div class="logo">
+            PAUSED
+        </div>
+
+        <button
+            id="resumeButton"
+            class="mainButton">
+
+            RESUME
+
+        </button>
+
+    </div>
+
+</div>   
 <script>
 
+/* =========================================
+   DASH RUNNING - GAME ENGINE
+   ========================================= */
+
 const game = document.getElementById("game");
+
 const player = document.getElementById("player");
+
 const scoreText = document.getElementById("score");
+
 const bestText = document.getElementById("best");
 
-const startScreen = document.getElementById("startScreen");
-const gameOverScreen = document.getElementById("gameOver");
-const startButton = document.getElementById("startButton");
-const restartButton = document.getElementById("restartButton");
-const finalScore = document.getElementById("finalScore");
+const startScreen =
+    document.getElementById("startScreen");
 
-let playerY = 0;
-let velocity = 0;
-let gravity = 0.8;
-let jumpPower = 14;
+const gameOverScreen =
+    document.getElementById("gameOver");
 
-let obstacles = [];
-let coins = [];
+const pauseScreen =
+    document.getElementById("pauseScreen");
+
+const startButton =
+    document.getElementById("startButton");
+
+const restartButton =
+    document.getElementById("restartButton");
+
+const pauseButton =
+    document.getElementById("pauseButton");
+
+const resumeButton =
+    document.getElementById("resumeButton");
+
+const finalScore =
+    document.getElementById("finalScore");
+
+
+/* =========================================
+   GAME VARIABLES
+   ========================================= */
+
+let running = false;
+
+let paused = false;
 
 let score = 0;
-let best = Number(localStorage.getItem("dashBest")) || 0;
+
+let best =
+    Number(localStorage.getItem("dashBest")) || 0;
 
 let speed = 6;
-let gameRunning = false;
-let gameOver = false;
 
-let obstacleTimer = 0;
-let coinTimer = 0;
+let playerY = 0;
 
-bestText.textContent = "Best: " + best;
+let velocity = 0;
 
+const gravity = 0.78;
 
-/* START */
+const jumpPower = 14;
 
-startButton.addEventListener("click", startGame);
-restartButton.addEventListener("click", startGame);
+let obstacleTimer = 70;
 
+let coinTimer = 100;
 
-/* TAP / CLICK */
+let obstacles = [];
 
-document.addEventListener("pointerdown", function(e) {
-
-    if (!gameRunning) return;
-
-    jump();
-
-});
+let coins = [];
 
 
-/* JUMP */
+/* Show best score */
+
+bestText.textContent =
+    "Best: " + best;
+
+
+/* =========================================
+   SIMPLE SOUND
+   ========================================= */
+
+let audioContext = null;
+
+function sound(frequency, duration) {
+
+    try {
+
+        if (!audioContext) {
+
+            audioContext =
+                new (
+                    window.AudioContext ||
+                    window.webkitAudioContext
+                )();
+
+        }
+
+        const oscillator =
+            audioContext.createOscillator();
+
+        const gain =
+            audioContext.createGain();
+
+        oscillator.frequency.value =
+            frequency;
+
+        oscillator.type = "sine";
+
+        gain.gain.setValueAtTime(
+            0.08,
+            audioContext.currentTime
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.001,
+            audioContext.currentTime + duration
+        );
+
+        oscillator.connect(gain);
+
+        gain.connect(
+            audioContext.destination
+        );
+
+        oscillator.start();
+
+        oscillator.stop(
+            audioContext.currentTime + duration
+        );
+
+    } catch (error) {
+
+        /* Sound is optional */
+
+    }
+
+}
+
+
+/* =========================================
+   START GAME
+   ========================================= */
+
+function startGame() {
+
+    startScreen.style.display =
+        "none";
+
+    gameOverScreen.style.display =
+        "none";
+
+    pauseScreen.style.display =
+        "none";
+
+    running = true;
+
+    paused = false;
+
+    score = 0;
+
+    speed = 6;
+
+    playerY = 0;
+
+    velocity = 0;
+
+    obstacleTimer = 70;
+
+    coinTimer = 100;
+
+    removeObjects();
+
+    scoreText.textContent =
+        "Score: 0";
+
+    sound(600, 0.08);
+
+}
+
+
+/* =========================================
+   REMOVE OLD OBJECTS
+   ========================================= */
+
+function removeObjects() {
+
+    obstacles.forEach(
+        obstacle => obstacle.remove()
+    );
+
+    coins.forEach(
+        coin => coin.remove()
+    );
+
+    obstacles = [];
+
+    coins = [];
+
+}
+
+
+/* =========================================
+   JUMP
+   ========================================= */
 
 function jump() {
+
+    if (!running || paused) {
+        return;
+    }
 
     if (playerY <= 1) {
 
         velocity = jumpPower;
 
-    }
-
-}
-
-
-/* START GAME */
-
-function startGame() {
-
-    startScreen.style.display = "none";
-    gameOverScreen.style.display = "none";
-
-    obstacles.forEach(o => o.remove());
-    coins.forEach(c => c.remove());
-
-    obstacles = [];
-    coins = [];
-
-    score = 0;
-    speed = 6;
-
-    playerY = 0;
-    velocity = 0;
-
-    obstacleTimer = 0;
-    coinTimer = 0;
-
-    gameRunning = true;
-    gameOver = false;
-
-    scoreText.textContent = "Score: 0";
-
-}
-
-
-/* GAME LOOP */
-
-function gameLoop() {
-
-    if (gameRunning) {
-
-        /* Player physics */
-
-        velocity -= gravity;
-
-        playerY += velocity;
-
-        if (playerY < 0) {
-
-            playerY = 0;
-            velocity = 0;
-
-        }
-
-        player.style.transform =
-            "translateY(" + (-playerY) + "px)";
-
-
-        /* Score */
-
-        score += 0.1;
-
-        scoreText.textContent =
-            "Score: " + Math.floor(score);
-
-
-        /* Increase speed */
-
-        speed = 6 + score / 250;
-
-
-        /* Obstacles */
-
-        obstacleTimer--;
-
-        if (obstacleTimer <= 0) {
-
-            createObstacle();
-
-            obstacleTimer =
-                Math.max(55, 110 - score / 15);
-
-        }
-
-
-        /* Coins */
-
-        coinTimer--;
-
-        if (coinTimer <= 0) {
-
-            createCoin();
-
-            coinTimer = 80 + Math.random() * 100;
-
-        }
-
-
-        moveObjects();
-
-
-        /* Collision */
-
-        checkCollisions();
+        sound(500, 0.06);
 
     }
 
-    requestAnimationFrame(gameLoop);
-
 }
 
-gameLoop();
+
+/* =========================================
+   TOUCH / CLICK CONTROL
+   ========================================= */
+
+document.addEventListener(
+    "pointerdown",
+    function(event) {
+
+        if (
+            event.target === startButton ||
+            event.target === restartButton ||
+            event.target === pauseButton ||
+            event.target === resumeButton
+        ) {
+            return;
+        }
+
+        jump();
+
+    }
+);
 
 
-/* CREATE OBSTACLE */
+/* =========================================
+   BUTTONS
+   ========================================= */
+
+startButton.addEventListener(
+    "click",
+    startGame
+);
+
+restartButton.addEventListener(
+    "click",
+    startGame
+);
+
+
+/* =========================================
+   PAUSE
+   ========================================= */
+
+pauseButton.addEventListener(
+    "click",
+    function() {
+
+        if (!running) {
+            return;
+        }
+
+        paused = true;
+
+        pauseScreen.style.display =
+            "flex";
+
+    }
+);
+
+
+/* =========================================
+   RESUME
+   ========================================= */
+
+resumeButton.addEventListener(
+    "click",
+    function() {
+
+        paused = false;
+
+        pauseScreen.style.display =
+            "none";
+
+        sound(700, 0.06);
+
+    }
+);
+
+
+/* =========================================
+   CREATE OBSTACLE
+   ========================================= */
 
 function createObstacle() {
 
-    const obstacle = document.createElement("div");
+    const obstacle =
+        document.createElement("div");
 
-    obstacle.className = "obstacle";
+    obstacle.className =
+        "obstacle";
 
     obstacle.style.left =
         window.innerWidth + "px";
@@ -446,16 +1141,21 @@ function createObstacle() {
 }
 
 
-/* CREATE COIN */
+/* =========================================
+   CREATE COIN
+   ========================================= */
 
 function createCoin() {
 
-    const coin = document.createElement("div");
+    const coin =
+        document.createElement("div");
 
-    coin.className = "coin";
+    coin.className =
+        "coin";
 
     const height =
-        120 + Math.random() * 150;
+        120 +
+        Math.random() * 190;
 
     coin.style.bottom =
         height + "px";
@@ -470,53 +1170,129 @@ function createCoin() {
 }
 
 
-/* MOVE OBJECTS */
+/* =========================================
+   COIN EFFECT
+   ========================================= */
 
-function moveObjects() {
+function coinEffect(x, y) {
 
-    obstacles.forEach((obstacle, index) => {
+    const text =
+        document.createElement("div");
 
-        let x =
-            parseFloat(obstacle.style.left);
+    text.className =
+        "coinFlash";
 
-        x -= speed;
+    text.textContent =
+        "+10";
 
-        obstacle.style.left = x + "px";
+    text.style.left =
+        x + "px";
 
-        if (x < -60) {
+    text.style.top =
+        y + "px";
 
-            obstacle.remove();
+    game.appendChild(text);
 
-            obstacles.splice(index, 1);
-
-        }
-
-    });
-
-
-    coins.forEach((coin, index) => {
-
-        let x =
-            parseFloat(coin.style.left);
-
-        x -= speed;
-
-        coin.style.left = x + "px";
-
-        if (x < -40) {
-
-            coin.remove();
-
-            coins.splice(index, 1);
-
-        }
-
-    });
+    setTimeout(
+        () => text.remove(),
+        600
+    );
 
 }
 
 
-/* COLLISION */
+/* =========================================
+   COLLISION DETECTION
+   ========================================= */
+
+function collision(a, b) {
+
+    return (
+        a.left < b.right &&
+        a.right > b.left &&
+        a.top < b.bottom &&
+        a.bottom > b.top
+    );
+
+}
+
+
+/* =========================================
+   MOVE OBJECTS
+   ========================================= */
+
+function moveObjects() {
+
+
+    /* Obstacles */
+
+    for (
+        let i = obstacles.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const obstacle =
+            obstacles[i];
+
+        let x =
+            parseFloat(
+                obstacle.style.left
+            );
+
+        x -= speed;
+
+        obstacle.style.left =
+            x + "px";
+
+        if (x < -80) {
+
+            obstacle.remove();
+
+            obstacles.splice(i, 1);
+
+        }
+
+    }
+
+
+    /* Coins */
+
+    for (
+        let i = coins.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const coin =
+            coins[i];
+
+        let x =
+            parseFloat(
+                coin.style.left
+            );
+
+        x -= speed;
+
+        coin.style.left =
+            x + "px";
+
+        if (x < -60) {
+
+            coin.remove();
+
+            coins.splice(i, 1);
+
+        }
+
+    }
+
+}
+
+
+/* =========================================
+   CHECK COLLISIONS
+   ========================================= */
 
 function checkCollisions() {
 
@@ -528,14 +1304,14 @@ function checkCollisions() {
 
     for (const obstacle of obstacles) {
 
-        const rect =
+        const obstacleRect =
             obstacle.getBoundingClientRect();
 
         if (
-            playerRect.left < rect.right &&
-            playerRect.right > rect.left &&
-            playerRect.top < rect.bottom &&
-            playerRect.bottom > rect.top
+            collision(
+                playerRect,
+                obstacleRect
+            )
         ) {
 
             endGame();
@@ -549,43 +1325,63 @@ function checkCollisions() {
 
     /* Coins */
 
-    coins.forEach((coin, index) => {
+    for (
+        let i = coins.length - 1;
+        i >= 0;
+        i--
+    ) {
 
-        const rect =
+        const coin =
+            coins[i];
+
+        const coinRect =
             coin.getBoundingClientRect();
 
         if (
-            playerRect.left < rect.right &&
-            playerRect.right > rect.left &&
-            playerRect.top < rect.bottom &&
-            playerRect.bottom > rect.top
+            collision(
+                playerRect,
+                coinRect
+            )
         ) {
 
             score += 10;
 
+            coinEffect(
+                coinRect.left,
+                coinRect.top
+            );
+
+            sound(900, 0.08);
+
             coin.remove();
 
-            coins.splice(index, 1);
+            coins.splice(i, 1);
 
         }
 
-    });
+    }
 
 }
 
 
-/* GAME OVER */
+/* =========================================
+   GAME OVER
+   ========================================= */
 
 function endGame() {
 
-    gameRunning = false;
-    gameOver = true;
+    running = false;
+
+    paused = false;
 
     const final =
         Math.floor(score);
 
     finalScore.textContent =
         "Score: " + final;
+
+
+    /* Save high score */
 
     if (final > best) {
 
@@ -604,9 +1400,124 @@ function endGame() {
     gameOverScreen.style.display =
         "flex";
 
+    sound(180, 0.25);
+
 }
+
+
+/* =========================================
+   MAIN GAME LOOP
+   ========================================= */
+
+function gameLoop() {
+
+    if (running && !paused) {
+
+
+        /* Player physics */
+
+        velocity -= gravity;
+
+        playerY += velocity;
+
+
+        /* Keep player on ground */
+
+        if (playerY < 0) {
+
+            playerY = 0;
+
+            velocity = 0;
+
+        }
+
+
+        /* Move player */
+
+        player.style.transform =
+            "translateY(" +
+            (-playerY) +
+            "px)";
+
+
+        /* Score */
+
+        score += 0.1;
+
+        scoreText.textContent =
+            "Score: " +
+            Math.floor(score);
+
+
+        /* Gradually increase speed */
+
+        speed =
+            6 +
+            Math.min(
+                7,
+                score / 180
+            );
+
+
+        /* Create obstacles */
+
+        obstacleTimer--;
+
+        if (obstacleTimer <= 0) {
+
+            createObstacle();
+
+            obstacleTimer =
+                Math.max(
+                    55,
+                    105 -
+                    score / 12
+                );
+
+        }
+
+
+        /* Create coins */
+
+        coinTimer--;
+
+        if (coinTimer <= 0) {
+
+            createCoin();
+
+            coinTimer =
+                70 +
+                Math.random() * 100;
+
+        }
+
+
+        /* Move everything */
+
+        moveObjects();
+
+
+        /* Check collisions */
+
+        checkCollisions();
+
+    }
+
+
+    requestAnimationFrame(
+        gameLoop
+    );
+
+}
+
+
+/* =========================================
+   START GAME LOOP
+   ========================================= */
+
+gameLoop();
 
 </script>
 
 </body>
-</html>
+</html>      
