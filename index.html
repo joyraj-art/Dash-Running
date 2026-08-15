@@ -1,1 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
+<title>Dash Runner</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    overflow: hidden;
+    background: #111;
+    font-family: Arial, sans-serif;
+    touch-action: manipulation;
+}
+
+#game {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(#182848, #4b6cb7);
+}
+
+/* Moon */
+.moon {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    background: #fff;
+    border-radius: 50%;
+    right: 12%;
+    top: 10%;
+    box-shadow: 0 0 30px rgba(255,255,255,.6);
+}
+
+/* Background */
+.cloud {
+    position: absolute;
+    width: 120px;
+    height: 35px;
+    background: rgba(255,255,255,.18);
+    border-radius: 30px;
+}
+
+.cloud::before,
+.cloud::after {
+    content: "";
+    position: absolute;
+    background: inherit;
+    border-radius: 50%;
+}
+
+.cloud::before {
+    width: 45px;
+    height: 45px;
+    left: 20px;
+    top: -20px;
+}
+
+.cloud::after {
+    width: 55px;
+    height: 55px;
+    right: 15px;
+    top: -25px;
+}
+
+.cloud1 {
+    top: 20%;
+    left: 10%;
+}
+
+.cloud2 {
+    top: 32%;
+    left: 60%;
+    transform: scale(.7);
+}
+
+/* UI */
+#score {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: white;
+    font-size: 22px;
+    font-weight: bold;
+    z-index: 20;
+}
+
+#best {
+    position: absolute;
+    top: 50px;
+    left: 20px;
+    color: rgba(255,255,255,.8);
+    font-size: 15px;
+    z-index: 20;
+}
+
+/* Player */
+#player {
+    position: absolute;
+    width: 42px;
+    height: 58px;
+    left: 80px;
+    bottom: 80px;
+    background: #ffcc33;
+    border-radius: 12px 12px 8px 8px;
+    z-index: 10;
+    box-shadow: 0 5px 10px rgba(0,0,0,.3);
+}
+
+#player::before {
+    content: "";
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background: #ffdf66;
+    border-radius: 50%;
+    top: -22px;
+    left: 6px;
+}
+
+#player::after {
+    content: "";
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #111;
+    border-radius: 50%;
+    top: -10px;
+    left: 25px;
+}
+
+/* Ground */
+#ground {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    background: #18220f;
+    border-top: 5px solid #7eb343;
+}
+
+/* Obstacles */
+.obstacle {
+    position: absolute;
+    width: 38px;
+    height: 58px;
+    bottom: 80px;
+    background: #d94b4b;
+    border-radius: 8px 8px 2px 2px;
+    box-shadow: 0 5px 10px rgba(0,0,0,.3);
+}
+
+/* Coins */
+.coin {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    bottom: 170px;
+    background: #ffd700;
+    border-radius: 50%;
+    border: 3px solid #fff2a6;
+    box-shadow: 0 0 10px rgba(255,215,0,.8);
+}
+
+/* Start screen */
+#startScreen,
+#gameOver {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,.45);
+    color: white;
+    z-index: 50;
+    text-align: center;
+}
+
+#gameOver {
+    display: none;
+}
+
+h1 {
+    font-size: 42px;
+    margin-bottom: 12px;
+}
+
+.subtitle {
+    font-size: 17px;
+    margin-bottom: 25px;
+    opacity: .85;
+}
+
+button {
+    border: none;
+    background: #ffd21f;
+    color: #111;
+    padding: 14px 32px;
+    border-radius: 30px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:active {
+    transform: scale(.95);
+}
+
+#finalScore {
+    margin-bottom: 20px;
+    font-size: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+    <div class="moon"></div>
+
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+
+    <div id="score">Score: 0</div>
+    <div id="best">Best: 0</div>
+
+    <div id="player"></div>
+
+    <div id="ground"></div>
+
+    <div id="startScreen">
+        <h1>Dash Runner</h1>
+        <div class="subtitle">Tap anywhere to jump!</div>
+        <button id="startButton">START GAME</button>
+    </div>
+
+    <div id="gameOver">
+        <h1>Game Over</h1>
+        <div id="finalScore">Score: 0</div>
+        <button id="restartButton">PLAY AGAIN</button>
+    </div>
+
+</div>
+
+<script>
+
+const game = document.getElementById("game");
+const player = document.getElementById("player");
+const scoreText = document.getElementById("score");
+const bestText = document.getElementById("best");
+
+const startScreen = document.getElementById("startScreen");
+const gameOverScreen = document.getElementById("gameOver");
+const startButton = document.getElementById("startButton");
+const restartButton = document.getElementById("restartButton");
+const finalScore = document.getElementById("finalScore");
+
+let playerY = 0;
+let velocity = 0;
+let gravity = 0.8;
+let jumpPower = 14;
+
+let obstacles = [];
+let coins = [];
+
+let score = 0;
+let best = Number(localStorage.getItem("dashBest")) || 0;
+
+let speed = 6;
+let gameRunning = false;
+let gameOver = false;
+
+let obstacleTimer = 0;
+let coinTimer = 0;
+
+bestText.textContent = "Best: " + best;
+
+
+/* START */
+
+startButton.addEventListener("click", startGame);
+restartButton.addEventListener("click", startGame);
+
+
+/* TAP / CLICK */
+
+document.addEventListener("pointerdown", function(e) {
+
+    if (!gameRunning) return;
+
+    jump();
+
+});
+
+
+/* JUMP */
+
+function jump() {
+
+    if (playerY <= 1) {
+
+        velocity = jumpPower;
+
+    }
+
+}
+
+
+/* START GAME */
+
+function startGame() {
+
+    startScreen.style.display = "none";
+    gameOverScreen.style.display = "none";
+
+    obstacles.forEach(o => o.remove());
+    coins.forEach(c => c.remove());
+
+    obstacles = [];
+    coins = [];
+
+    score = 0;
+    speed = 6;
+
+    playerY = 0;
+    velocity = 0;
+
+    obstacleTimer = 0;
+    coinTimer = 0;
+
+    gameRunning = true;
+    gameOver = false;
+
+    scoreText.textContent = "Score: 0";
+
+}
+
+
+/* GAME LOOP */
+
+function gameLoop() {
+
+    if (gameRunning) {
+
+        /* Player physics */
+
+        velocity -= gravity;
+
+        playerY += velocity;
+
+        if (playerY < 0) {
+
+            playerY = 0;
+            velocity = 0;
+
+        }
+
+        player.style.transform =
+            "translateY(" + (-playerY) + "px)";
+
+
+        /* Score */
+
+        score += 0.1;
+
+        scoreText.textContent =
+            "Score: " + Math.floor(score);
+
+
+        /* Increase speed */
+
+        speed = 6 + score / 250;
+
+
+        /* Obstacles */
+
+        obstacleTimer--;
+
+        if (obstacleTimer <= 0) {
+
+            createObstacle();
+
+            obstacleTimer =
+                Math.max(55, 110 - score / 15);
+
+        }
+
+
+        /* Coins */
+
+        coinTimer--;
+
+        if (coinTimer <= 0) {
+
+            createCoin();
+
+            coinTimer = 80 + Math.random() * 100;
+
+        }
+
+
+        moveObjects();
+
+
+        /* Collision */
+
+        checkCollisions();
+
+    }
+
+    requestAnimationFrame(gameLoop);
+
+}
+
+gameLoop();
+
+
+/* CREATE OBSTACLE */
+
+function createObstacle() {
+
+    const obstacle = document.createElement("div");
+
+    obstacle.className = "obstacle";
+
+    obstacle.style.left =
+        window.innerWidth + "px";
+
+    game.appendChild(obstacle);
+
+    obstacles.push(obstacle);
+
+}
+
+
+/* CREATE COIN */
+
+function createCoin() {
+
+    const coin = document.createElement("div");
+
+    coin.className = "coin";
+
+    const height =
+        120 + Math.random() * 150;
+
+    coin.style.bottom =
+        height + "px";
+
+    coin.style.left =
+        window.innerWidth + "px";
+
+    game.appendChild(coin);
+
+    coins.push(coin);
+
+}
+
+
+/* MOVE OBJECTS */
+
+function moveObjects() {
+
+    obstacles.forEach((obstacle, index) => {
+
+        let x =
+            parseFloat(obstacle.style.left);
+
+        x -= speed;
+
+        obstacle.style.left = x + "px";
+
+        if (x < -60) {
+
+            obstacle.remove();
+
+            obstacles.splice(index, 1);
+
+        }
+
+    });
+
+
+    coins.forEach((coin, index) => {
+
+        let x =
+            parseFloat(coin.style.left);
+
+        x -= speed;
+
+        coin.style.left = x + "px";
+
+        if (x < -40) {
+
+            coin.remove();
+
+            coins.splice(index, 1);
+
+        }
+
+    });
+
+}
+
+
+/* COLLISION */
+
+function checkCollisions() {
+
+    const playerRect =
+        player.getBoundingClientRect();
+
+
+    /* Obstacles */
+
+    for (const obstacle of obstacles) {
+
+        const rect =
+            obstacle.getBoundingClientRect();
+
+        if (
+            playerRect.left < rect.right &&
+            playerRect.right > rect.left &&
+            playerRect.top < rect.bottom &&
+            playerRect.bottom > rect.top
+        ) {
+
+            endGame();
+
+            return;
+
+        }
+
+    }
+
+
+    /* Coins */
+
+    coins.forEach((coin, index) => {
+
+        const rect =
+            coin.getBoundingClientRect();
+
+        if (
+            playerRect.left < rect.right &&
+            playerRect.right > rect.left &&
+            playerRect.top < rect.bottom &&
+            playerRect.bottom > rect.top
+        ) {
+
+            score += 10;
+
+            coin.remove();
+
+            coins.splice(index, 1);
+
+        }
+
+    });
+
+}
+
+
+/* GAME OVER */
+
+function endGame() {
+
+    gameRunning = false;
+    gameOver = true;
+
+    const final =
+        Math.floor(score);
+
+    finalScore.textContent =
+        "Score: " + final;
+
+    if (final > best) {
+
+        best = final;
+
+        localStorage.setItem(
+            "dashBest",
+            best
+        );
+
+        bestText.textContent =
+            "Best: " + best;
+
+    }
+
+    gameOverScreen.style.display =
+        "flex";
+
+}
+
+</script>
+
+</body>
+</html>
